@@ -1,8 +1,12 @@
 package com.example.kitchendesign.entity;
 
+import com.example.kitchendesign.entity.project.Draft;
+import com.example.kitchendesign.entity.project.Project;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -33,9 +37,23 @@ public class User {
     private String email;
 
 
+    @Column(name = "phone_number", nullable = false)
+    private String phoneNumber;
+
+
     @ElementCollection(fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
     private Set<Role> roles;
+
+
+    @Column(name = "registration_date", nullable = false)
+    private LocalDateTime regDate;
+
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
+    private List<Project> projects;
+
 
 }
