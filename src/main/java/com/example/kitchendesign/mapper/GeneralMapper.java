@@ -1,5 +1,6 @@
 package com.example.kitchendesign.mapper;
 
+import com.example.kitchendesign.dto.userDTO.UserUpdateDTO;
 import com.example.kitchendesign.dto.userDTO.UserGetDTO;
 import com.example.kitchendesign.dto.userDTO.UserLoginDTO;
 import com.example.kitchendesign.dto.userDTO.UserPostDTO;
@@ -16,4 +17,6 @@ public interface GeneralMapper {
     UserGetDTO userToUserGetDTO(User user);
 
     User userLoginDTOToUser(UserLoginDTO userLoginDTO);
+
+    User userUpdateDTOToUser(UserUpdateDTO userUpdateDTO);
 }
