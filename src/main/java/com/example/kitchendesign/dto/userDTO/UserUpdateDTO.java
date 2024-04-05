@@ -2,6 +2,9 @@ package com.example.kitchendesign.dto.userDTO;
 
 import com.example.kitchendesign.entity.Role;
 import com.example.kitchendesign.entity.project.Project;
+import com.example.kitchendesign.validator.passwordValidator.ValidPassword;
+import com.example.kitchendesign.validator.phoneNumberValidator.ValidPhoneNumber;
+import com.example.kitchendesign.validator.usernameValidator.ValidUsername;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -23,19 +26,14 @@ public class UserUpdateDTO {
 
     @NotBlank
     @NotEmpty
-    @JsonProperty("id")
-    private Long id;
-
-    @NotBlank
-    @NotEmpty
-    @Range(min = 3, max = 16)
+    @ValidUsername
     @JsonProperty("username")
     private String username;
 
 
     @NotBlank
     @NotEmpty
-    @Range(min = 8, max = 28)
+    @ValidPassword
     @JsonProperty("password")
     private String password;
 
@@ -49,23 +47,7 @@ public class UserUpdateDTO {
 
     @NotBlank
     @NotEmpty
+    @ValidPhoneNumber
     @JsonProperty("phoneNumber")
     private String phoneNumber;
-
-
-    @NotBlank
-    @NotEmpty
-    @JsonProperty("roles")          //????????????????????????????
-    private Set<Role> roles;
-
-
-    @NotBlank
-    @NotEmpty
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
-    @JsonProperty("regDate")          //????????????????????????????
-    private LocalDateTime regDate;          //????????????????????????????
-
-
-    @JsonProperty("projects")
-    private List<Project> projects;
 }

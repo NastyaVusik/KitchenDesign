@@ -8,39 +8,38 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserLoginDTO {
+public class UserRegistrationDTO {
 
-    @NotBlank
+    @NotBlank(message = "username is mandatory")
     @NotEmpty
     @ValidUsername
     @JsonProperty("username")
     private String username;
 
 
-    @NotBlank
+    @NotBlank(message = "password is mandatory")
+    @NotEmpty
+    @ValidPassword
+    @JsonProperty("password")
+    private String password;
+
+
+    @NotBlank(message = "email is mandatory")
     @NotEmpty
     @Email
     @JsonProperty("email")
     private String email;
 
 
-    @NotBlank
+    @NotBlank(message = "phone number is mandatory")
     @NotEmpty
     @ValidPhoneNumber
     @JsonProperty("phoneNumber")
     private String phoneNumber;
-
-
-    @NotBlank
-    @NotEmpty
-    @ValidPassword
-    @JsonProperty("password")
-    private String password;
 }
