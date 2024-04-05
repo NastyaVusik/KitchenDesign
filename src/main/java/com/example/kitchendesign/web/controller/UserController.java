@@ -1,9 +1,6 @@
 package com.example.kitchendesign.web.controller;
 
-import com.example.kitchendesign.dto.userDTO.UserGetDTO;
-import com.example.kitchendesign.dto.userDTO.UserLoginDTO;
-import com.example.kitchendesign.dto.userDTO.UserPostDTO;
-import com.example.kitchendesign.dto.userDTO.UserUpdateDTO;
+import com.example.kitchendesign.dto.userDTO.*;
 import com.example.kitchendesign.entity.User;
 import com.example.kitchendesign.mapper.GeneralMapper;
 import com.example.kitchendesign.service.UserService;
@@ -28,9 +25,9 @@ public class UserController {
 
 
     @PostMapping("/registration")
-    public ResponseEntity<User> registration(@Valid @RequestBody UserPostDTO userPostDTO) {
+    public ResponseEntity<User> registration(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
 
-        User user = userService.save(generalMapper.userPostDTOToUser(userPostDTO));
+        User user = userService.save(generalMapper.userRegistrationDTOToUser(userRegistrationDTO));
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -69,7 +66,7 @@ public class UserController {
     }
 
 
-    @PutMapping("/id")
+    @PutMapping("/{id}")
     public ResponseEntity<User> updateById(@PathVariable(name = "id") Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
 
         User user = userService.findById(id);
@@ -84,12 +81,13 @@ public class UserController {
     }
 
 
-    @DeleteMapping("/id")
-    public ResponseEntity<User> removeById(@PathVariable(name = "id") Long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<User> deleteById(@PathVariable(name = "id") Long id) {
 
         User userById = userService.findById(id);
 
         if (userById.getId().equals(id)) {
+            userService.removeById(id);
             return ResponseEntity.ok(userById);
         } else {
             return ResponseEntity.notFound().build();

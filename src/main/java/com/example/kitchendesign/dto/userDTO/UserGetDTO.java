@@ -2,6 +2,7 @@ package com.example.kitchendesign.dto.userDTO;
 
 import com.example.kitchendesign.entity.Role;
 import com.example.kitchendesign.entity.project.Project;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +29,6 @@ public class UserGetDTO {
 
     @NotBlank
     @NotEmpty
-    @Range(min = 3, max = 16)
     @JsonProperty("username")
     private String username;
 
@@ -54,7 +54,8 @@ public class UserGetDTO {
 
     @NotBlank
     @NotEmpty
-    @DateTimeFormat(pattern = "dd-MM-yyyy")
+//    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @JsonProperty("regDate")          //????????????????????????????
     private LocalDateTime regDate;          //????????????????????????????
 
