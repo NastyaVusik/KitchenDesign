@@ -1,5 +1,6 @@
-package com.example.kitchendesign.validator.usernameValidator;
+package com.example.kitchendesign.validator.annotation;
 
+import com.example.kitchendesign.validator.usernameValidator.UsernameConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

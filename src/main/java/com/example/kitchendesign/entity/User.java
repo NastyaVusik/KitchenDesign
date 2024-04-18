@@ -19,6 +19,11 @@ import java.util.Set;
 @Table(name = "tb_user")
 public class User {
 
+    public interface LoginWithEmail{}
+    public interface LoginWithUserName{}
+    public interface LoginWithPhoneNumber{}
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)

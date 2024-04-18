@@ -1,5 +1,6 @@
-package com.example.kitchendesign.validator.passwordValidator;
+package com.example.kitchendesign.validator.annotation;
 
+import com.example.kitchendesign.validator.passwordValidator.PasswordConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

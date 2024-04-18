@@ -24,6 +24,11 @@ public class UserService {
     public User save(User user) {
 
         user.setRegDate(LocalDateTime.now());
+//        if (!user.getPhoneNumber().equals(userRepository.findByPhoneNumber(user.getPhoneNumber()).get()) |
+//            !user.getEmail().equals(userRepository.findByPhoneNumber(user.getEmail()).get()) |
+//            !user.getPhoneNumber().equals(userRepository.findByPhoneNumber(user.getPhoneNumber()).get())) {
+//            throw new RuntimeException("User with this data is already exist");
+//        }
 
         return userRepository.save(user);
     }
@@ -85,6 +90,23 @@ public class UserService {
         return userByUsername.get();
     }
 
+
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+
+        Optional<User> userByEmail = Optional.of(userRepository.findByEmail(email).orElseThrow());
+
+        return userByEmail.get();
+    }
+
+
+    @Transactional(readOnly = true)
+    public User findByPhoneNumber(String phoneNumber) {
+
+        Optional<User> userByPhoneNumber = Optional.of(userRepository.findByPhoneNumber(phoneNumber).orElseThrow());
+
+        return userByPhoneNumber.get();
+    }
 
     public User updateById(Long id, UserUpdateDTO userUpdateDTO) {
 

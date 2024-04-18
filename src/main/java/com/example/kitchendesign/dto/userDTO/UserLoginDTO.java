@@ -1,14 +1,13 @@
 package com.example.kitchendesign.dto.userDTO;
 
-import com.example.kitchendesign.validator.passwordValidator.ValidPassword;
-import com.example.kitchendesign.validator.phoneNumberValidator.ValidPhoneNumber;
-import com.example.kitchendesign.validator.usernameValidator.ValidUsername;
+import com.example.kitchendesign.entity.User;
+import com.example.kitchendesign.validator.annotation.ValidPassword;
+import com.example.kitchendesign.validator.annotation.ValidPhoneNumber;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
-import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
@@ -17,30 +16,29 @@ import org.hibernate.validator.constraints.Range;
 @AllArgsConstructor
 public class UserLoginDTO {
 
-    @NotBlank
-    @NotEmpty
-    @ValidUsername
+    @NotBlank(groups = User.LoginWithUserName.class)
+    @NotEmpty(groups = User.LoginWithUserName.class)
     @JsonProperty("username")
     private String username;
 
 
-    @NotBlank
-    @NotEmpty
-    @Email
+    @NotBlank(groups = User.LoginWithEmail.class)
+    @NotEmpty(groups = User.LoginWithEmail.class)
+    @Email(groups = User.LoginWithEmail.class)
     @JsonProperty("email")
     private String email;
 
 
-    @NotBlank
-    @NotEmpty
-    @ValidPhoneNumber
+    @NotBlank(groups = User.LoginWithPhoneNumber.class)
+    @NotEmpty(groups = User.LoginWithPhoneNumber.class)
+    @ValidPhoneNumber(groups = User.LoginWithPhoneNumber.class)
     @JsonProperty("phoneNumber")
     private String phoneNumber;
 
 
     @NotBlank
     @NotEmpty
-    @ValidPassword
+    @ValidPassword(message = "Incorrect password")
     @JsonProperty("password")
     private String password;
 }
