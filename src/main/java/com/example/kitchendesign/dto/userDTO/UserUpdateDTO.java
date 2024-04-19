@@ -1,6 +1,5 @@
 package com.example.kitchendesign.dto.userDTO;
 
-import com.example.kitchendesign.validator.annotation.ValidEmail;
 import com.example.kitchendesign.validator.annotation.ValidPassword;
 import com.example.kitchendesign.validator.annotation.ValidPhoneNumber;
 import com.example.kitchendesign.validator.annotation.ValidUsername;
@@ -34,7 +33,6 @@ public class UserUpdateDTO {
     @NotBlank
     @NotEmpty
     @Email
-    @ValidEmail
     @JsonProperty("email")
     private String email;
 

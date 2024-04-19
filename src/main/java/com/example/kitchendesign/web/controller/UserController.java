@@ -36,7 +36,7 @@ public class UserController {
 
     @PostMapping("/login/username")
     public ResponseEntity<User> loginWithUserName(@Validated(User.LoginWithUserName.class)
-                                      @RequestBody UserLoginDTO userLoginDTO) {         //???????????????
+                                      @RequestBody UserLoginDTO userLoginDTO) {
 
         User user = userService.findByUsername(generalMapper.userLoginDTOToUser(userLoginDTO).getUsername());
 
@@ -46,7 +46,7 @@ public class UserController {
 
     @PostMapping("/login/email")
     public ResponseEntity<User> loginWithEmail(@Validated(User.LoginWithEmail.class)
-                                               @RequestBody UserLoginDTO userLoginDTO) {         //???????????????
+                                               @RequestBody UserLoginDTO userLoginDTO) {
 
         User user = userService.findByEmail(generalMapper.userLoginDTOToUser(userLoginDTO).getEmail());
 

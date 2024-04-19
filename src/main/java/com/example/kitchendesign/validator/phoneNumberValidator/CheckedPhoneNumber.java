@@ -5,7 +5,7 @@ import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
 import lombok.Data;
-import lombok.Value;
+import org.springframework.http.HttpStatusCode;
 
 import static com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164;
 
@@ -17,26 +17,6 @@ public class CheckedPhoneNumber {
     String value;
     private final static String region = "BY";
 
-//    public CheckedPhoneNumber(String value) {
-//        this.value = validateAndNormalizePhoneNumber(value);
-//    }
-
-
-//    public String validateAndNormalizePhoneNumber(String value) {
-//
-//        try {
-//            if (Long.parseLong(value) <= 0) {
-//                throw new PhoneNumberParsingException("The phone number cannot be negative: " + value);
-//            }
-//            final var phoneNumber = PHONE_NUMBER_UTIL.parse(value, region);
-//            final String formattedPhoneNumber = PHONE_NUMBER_UTIL.format(phoneNumber, E164);
-//            // E164 format returns phone number with + character
-//
-//        } catch (NumberParseException | NumberFormatException e) {
-//            throw new PhoneNumberParsingException("The phone number isn't valid: " + value, e);
-//        }
-//    }
-
 
     public String validateAndNormalizePhoneNumber(String value) {
         final Phonenumber.PhoneNumber phoneNumber;
@@ -45,12 +25,12 @@ public class CheckedPhoneNumber {
         try {
 
             if (Long.parseLong(value) <= 0) {
-                throw new PhoneNumberParsingException("The phone number cannot be negative: " + value);
+                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "The phone number cannot be negative");
             }
             phoneNumber = PHONE_NUMBER_UTIL.parse(value, region);
 
             if (!PHONE_NUMBER_UTIL.isValidNumberForRegion(phoneNumber, region)) {
-                throw new PhoneNumberParsingException("Enter correct phone number: " + value);
+                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "Enter correct phone number");
             }
             formattedPhoneNumber = PHONE_NUMBER_UTIL.format(phoneNumber, E164);
             // E164 format returns phone number with + character
@@ -58,7 +38,7 @@ public class CheckedPhoneNumber {
             return formattedPhoneNumber.substring(1);
 
         } catch (NumberParseException | NumberFormatException e) {
-            throw new PhoneNumberParsingException("The phone number isn't valid: " + value, e);
+            throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "The phone number isn't valid");
         }
     }
 }

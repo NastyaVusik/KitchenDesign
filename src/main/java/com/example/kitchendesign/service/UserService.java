@@ -2,11 +2,14 @@ package com.example.kitchendesign.service;
 
 import com.example.kitchendesign.dto.userDTO.UserUpdateDTO;
 import com.example.kitchendesign.entity.User;
+import com.example.kitchendesign.exception.NotFoundException;
 import com.example.kitchendesign.mapper.GeneralMapper;
 import com.example.kitchendesign.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,12 +26,20 @@ public class UserService {
 
     public User save(User user) {
 
+        if (isUsernameAlreadyUsed(user.getUsername())) {
+            throw new HttpClientErrorException(HttpStatusCode.valueOf(409),
+                    "Account with this username is already exist");
+        }
+        if (isEmailAlreadyUsed(user.getEmail())) {
+            throw new HttpClientErrorException(HttpStatusCode.valueOf(409),
+                    "Account with this email is already exist");
+        }
+        if (isPhoneNumberAlreadyUsed(user.getPhoneNumber())) {
+            throw new HttpClientErrorException(HttpStatusCode.valueOf(409),
+                    "Account with this phone number is already exist");
+        }
+
         user.setRegDate(LocalDateTime.now());
-//        if (!user.getPhoneNumber().equals(userRepository.findByPhoneNumber(user.getPhoneNumber()).get()) |
-//            !user.getEmail().equals(userRepository.findByPhoneNumber(user.getEmail()).get()) |
-//            !user.getPhoneNumber().equals(userRepository.findByPhoneNumber(user.getPhoneNumber()).get())) {
-//            throw new RuntimeException("User with this data is already exist");
-//        }
 
         return userRepository.save(user);
     }
@@ -76,7 +87,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findById(Long id) {
 
-        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow());           //?????????????????????
+        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         return userById.get();
     }
@@ -85,7 +97,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findByUsername(String username) {
 
-        Optional<User> userByUsername = Optional.of(userRepository.findByUsername(username).orElseThrow());
+        Optional<User> userByUsername = Optional.of(userRepository.findByUsername(username).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         return userByUsername.get();
     }
@@ -94,7 +107,8 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findByEmail(String email) {
 
-        Optional<User> userByEmail = Optional.of(userRepository.findByEmail(email).orElseThrow());
+        Optional<User> userByEmail = Optional.of(userRepository.findByEmail(email).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         return userByEmail.get();
     }
@@ -103,14 +117,16 @@ public class UserService {
     @Transactional(readOnly = true)
     public User findByPhoneNumber(String phoneNumber) {
 
-        Optional<User> userByPhoneNumber = Optional.of(userRepository.findByPhoneNumber(phoneNumber).orElseThrow());
+        Optional<User> userByPhoneNumber = Optional.of(userRepository.findByPhoneNumber(phoneNumber).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         return userByPhoneNumber.get();
     }
 
     public User updateById(Long id, UserUpdateDTO userUpdateDTO) {
 
-        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow());
+        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         User user = userById.get();
         user.setUsername(generalMapper.userUpdateDTOToUser(userUpdateDTO).getUsername());
@@ -131,7 +147,8 @@ public class UserService {
 
     public User removeById(Long id) {
 
-        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow());
+        Optional<User> userById = Optional.of(userRepository.findById(id).orElseThrow(() ->
+                new NotFoundException(HttpStatusCode.valueOf(404), "User not found")));
 
         User user = userById.get();
         userRepository.deleteById(id);

@@ -3,34 +3,47 @@ package com.example.kitchendesign.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestControllerAdvice
 public class BaseExceptionHandler {
 
-    @ExceptionHandler(value = {MethodArgumentNotValidException.class})
-    public ResponseEntity<?> handleValidationExceptions(MethodArgumentNotValidException ex) {  //??????????????
+//    Invalidate registration data.
+//    User try to register with occupied data
+    @ExceptionHandler(value = {HttpClientErrorException.class})
+    public ResponseEntity<?> forbiddenDataException(HttpClientErrorException exception){
 
-        Map<String, String> errors = new HashMap<>();
-        String bodyOfResponse = "VALIDATION_FAILED";
+        log.error(exception.getMessage(), exception);
 
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-                    if (errors.containsKey(error.getField())) {
-                        errors.put(error.getField(), String.format("%s, %s", errors.get(error.getField()),
-                                error.getDefaultMessage()));
-                    } else {
-                        errors.put(error.getField(), error.getDefaultMessage());
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
+    }
 
-                    }
-                }
-        );
 
-        return new ResponseEntity<>(errors, HttpStatus.CONFLICT);          //??????????????
+    @ExceptionHandler(value = {NotFoundException.class})
+    public ResponseEntity<?> notFoundException(NotFoundException exception) {
+
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(exception.getMessage());
+    }
+
+
+//    Exception for parsing phone number with Google libphonenumber
+    @ExceptionHandler(value = {PhoneNumberParsingException.class})
+    public ResponseEntity<?> parsingException(PhoneNumberParsingException exception) {
+
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
     }
 }
