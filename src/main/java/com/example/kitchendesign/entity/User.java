@@ -16,8 +16,17 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+//@Table(
+//        name = "tb_user",
+//uniqueConstraints = {@UniqueConstraint(columnNames = {"username", "email", "phone_number"})}
+//)
 @Table(name = "tb_user")
 public class User {
+
+    public interface LoginWithEmail{}
+    public interface LoginWithUserName{}
+    public interface LoginWithPhoneNumber{}
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

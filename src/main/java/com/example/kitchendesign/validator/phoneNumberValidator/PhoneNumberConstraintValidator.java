@@ -1,16 +1,15 @@
 package com.example.kitchendesign.validator.phoneNumberValidator;
 
-import com.example.kitchendesign.service.UserService;
+import com.example.kitchendesign.validator.annotation.ValidPhoneNumber;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import com.example.kitchendesign.validator.phoneNumberValidator.CheckedPhoneNumber;
 
 @Component
 @AllArgsConstructor
 public class PhoneNumberConstraintValidator implements ConstraintValidator<ValidPhoneNumber, String> {
-
-    private final UserService userService;
 
     @Override
     public void initialize(ValidPhoneNumber arg1) {
@@ -21,11 +20,13 @@ public class PhoneNumberConstraintValidator implements ConstraintValidator<Valid
     @Override
     public boolean isValid(String phoneNumber, ConstraintValidatorContext context) {
 
-        if(userService.isPhoneNumberAlreadyUsed(phoneNumber)){
-            return false;
-        }
-        else {
-            return true;
-        }
+        CheckedPhoneNumber checkedPhoneNumber = new CheckedPhoneNumber();
+
+        if (!checkedPhoneNumber.validateAndNormalizePhoneNumber(phoneNumber).isEmpty()){
+                return true;
+            }
+
+        return false;
     }
 }
+

@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,10 +34,21 @@ public class UserController {
     }
 
 
-    @PostMapping("/login")
-    public ResponseEntity<User> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+    @PostMapping("/login/username")
+    public ResponseEntity<User> loginWithUserName(@Validated(User.LoginWithUserName.class)
+                                      @RequestBody UserLoginDTO userLoginDTO) {
 
         User user = userService.findByUsername(generalMapper.userLoginDTOToUser(userLoginDTO).getUsername());
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/login/email")
+    public ResponseEntity<User> loginWithEmail(@Validated(User.LoginWithEmail.class)
+                                               @RequestBody UserLoginDTO userLoginDTO) {
+
+        User user = userService.findByEmail(generalMapper.userLoginDTOToUser(userLoginDTO).getEmail());
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
