@@ -12,10 +12,10 @@ import org.springframework.web.client.HttpClientErrorException;
 @RestControllerAdvice
 public class BaseExceptionHandler {
 
-//    Invalidate registration data.
+    //    Invalidate registration data.
 //    User try to register with occupied data
     @ExceptionHandler(value = {HttpClientErrorException.class})
-    public ResponseEntity<?> forbiddenDataException(HttpClientErrorException exception){
+    public ResponseEntity<?> forbiddenDataException(HttpClientErrorException exception) {
 
         log.error(exception.getMessage(), exception);
 
@@ -36,7 +36,7 @@ public class BaseExceptionHandler {
     }
 
 
-//    Exception for parsing phone number with Google libphonenumber
+    //    Exception for parsing phone number with Google libphonenumber
     @ExceptionHandler(value = {PhoneNumberParsingException.class})
     public ResponseEntity<?> parsingException(PhoneNumberParsingException exception) {
 
@@ -44,6 +44,18 @@ public class BaseExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
+                .body(exception.getMessage());
+    }
+
+
+    //    Emailing exception
+    @ExceptionHandler(value = {MessagingException.class})
+    public ResponseEntity<?> messageException(MessagingException exception) {
+
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(exception.getMessage());
     }
 }

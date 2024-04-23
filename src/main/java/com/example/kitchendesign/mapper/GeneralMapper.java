@@ -1,5 +1,6 @@
 package com.example.kitchendesign.mapper;
 
+import com.example.kitchendesign.dto.emailSenderDTO.SimpleEmailDTO;
 import com.example.kitchendesign.dto.userDTO.*;
 import com.example.kitchendesign.entity.User;
 import org.mapstruct.Mapper;
@@ -21,4 +22,6 @@ public interface GeneralMapper {
     User userLoginDTOToUser(UserLoginDTO userLoginDTO);
 
     User userUpdateDTOToUser(UserUpdateDTO userUpdateDTO);
+
+    SimpleEmailDTO UserToSimpleEmailDTO(User user);
 }

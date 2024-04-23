@@ -4,14 +4,18 @@ import com.example.kitchendesign.dto.userDTO.*;
 import com.example.kitchendesign.entity.User;
 import com.example.kitchendesign.mapper.GeneralMapper;
 import com.example.kitchendesign.service.UserService;
+import com.example.kitchendesign.service.emailService.DefaultEmailService;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -23,12 +27,15 @@ public class UserController {
 
     private final UserService userService;
     private final GeneralMapper generalMapper;
+    private final DefaultEmailService defaultEmailService;
 
 
     @PostMapping("/registration")
     public ResponseEntity<User> registration(@Valid @RequestBody UserRegistrationDTO userRegistrationDTO) {
 
         User user = userService.save(generalMapper.userRegistrationDTOToUser(userRegistrationDTO));
+
+            defaultEmailService.sendSimpleEmail(generalMapper.UserToSimpleEmailDTO(user));
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
