@@ -9,7 +9,6 @@ import org.springframework.http.HttpStatusCode;
 
 import static com.google.i18n.phonenumbers.PhoneNumberUtil.PhoneNumberFormat.E164;
 
-//@Value
 @Data
 public class CheckedPhoneNumber {
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
@@ -25,12 +24,17 @@ public class CheckedPhoneNumber {
         try {
 
             if (Long.parseLong(value) <= 0) {
-                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "The phone number cannot be negative");
+                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "The phone number cannot be negative.");
             }
+
+            if (value.charAt(0) != '+') {
+                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "Enter \"+\" before digits.");
+            }
+
             phoneNumber = PHONE_NUMBER_UTIL.parse(value, region);
 
             if (!PHONE_NUMBER_UTIL.isValidNumberForRegion(phoneNumber, region)) {
-                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "Enter correct phone number");
+                throw new PhoneNumberParsingException(HttpStatusCode.valueOf(403), "Enter correct phone number.");
             }
             formattedPhoneNumber = PHONE_NUMBER_UTIL.format(phoneNumber, E164);
             // E164 format returns phone number with + character
