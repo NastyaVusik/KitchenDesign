@@ -1,5 +1,6 @@
 package com.example.kitchendesign.web.controller;
 
+import com.example.kitchendesign.dto.emailSenderDTO.SimpleEmailDTO;
 import com.example.kitchendesign.dto.userDTO.*;
 import com.example.kitchendesign.entity.User;
 import com.example.kitchendesign.mapper.GeneralMapper;
@@ -35,7 +36,9 @@ public class UserController {
 
         User user = userService.save(generalMapper.userRegistrationDTOToUser(userRegistrationDTO));
 
-            defaultEmailService.sendSimpleEmail(generalMapper.UserToSimpleEmailDTO(user));
+        defaultEmailService.sendSimpleEmail(user);
+
+//            defaultEmailService.sendSimpleEmail(generalMapper.UserToSimpleEmailDTO(user));
 
         return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
@@ -56,6 +59,16 @@ public class UserController {
                                                @RequestBody UserLoginDTO userLoginDTO) {
 
         User user = userService.findByEmail(generalMapper.userLoginDTOToUser(userLoginDTO).getEmail());
+
+        return new ResponseEntity<>(user, HttpStatus.OK);
+    }
+
+
+    @PostMapping("/login/phoneNumber")
+    public ResponseEntity<User> loginWithPhoneNumber(@Validated(User.LoginWithPhoneNumber.class)
+                                                     @RequestBody UserLoginDTO userLoginDTO) {
+
+        User user = userService.findByPhoneNumber(generalMapper.userLoginDTOToUser(userLoginDTO).getPhoneNumber());
 
         return new ResponseEntity<>(user, HttpStatus.OK);
     }

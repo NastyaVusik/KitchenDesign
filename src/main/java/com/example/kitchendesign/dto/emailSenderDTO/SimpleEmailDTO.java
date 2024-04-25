@@ -14,7 +14,7 @@ public class SimpleEmailDTO {
 
     @NotBlank
     @NotEmpty
-    private User recipient;
+    private User user;
 
     @NotBlank
     @NotEmpty

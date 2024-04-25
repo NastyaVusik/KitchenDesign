@@ -1,10 +1,8 @@
 package com.example.kitchendesign.service.emailService;
 
 import com.example.kitchendesign.dto.emailSenderDTO.SimpleEmailDTO;
-import jakarta.mail.MessagingException;
-
-import java.io.UnsupportedEncodingException;
+import com.example.kitchendesign.entity.User;
 
 public interface EmailService {
-    String sendSimpleEmail(SimpleEmailDTO simpleEmailDTO);
+    String sendSimpleEmail(User user);
 }
