@@ -41,9 +41,9 @@ public class DefaultEmailService implements EmailService {
             simpleEmailDTO.setSubject("Welcome to KitchenDesign!");
             mimeMessageHelper.setSubject(simpleEmailDTO.getSubject());
 
-            String text = "<h2>Hello. You have registrated in KitchenDesign successfully!\n" +
-                          "Your username: " + simpleEmailDTO.getUser().getUsername() + "/n" +
-                          "Your password: " + simpleEmailDTO.getUser().getPassword() + "<h2>";
+            String text = "<h3><p>Hello. You have registrated in KitchenDesign successfully!</p></h3>" +
+                          "<h2><p>Your username: " + simpleEmailDTO.getUser().getUsername()+"</p>" +
+                          "<p>Your password: " + simpleEmailDTO.getUser().getPassword() + "</p></h2>";
             simpleEmailDTO.setMessage(text);
 
             mimeMessageHelper.setText(simpleEmailDTO.getMessage(), true);
