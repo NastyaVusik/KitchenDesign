@@ -1,5 +1,6 @@
 package com.example.kitchendesign.configuration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -10,14 +11,26 @@ import java.util.Properties;
 @Configuration
 public class EmailConfiguration {
 
+    @Value("${spring.mail.username}")
+    private String username;
+
+    @Value("${spring.mail.password}")
+    private String password;
+
+    @Value("${spring.mail.host}")
+    private String host;
+
+    @Value("${spring.mail.port}")
+    private int port;
+
     @Bean
     public JavaMailSender getJavaMailSender() {
 
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
-        javaMailSender.setHost("smtp.gmail.com");
-        javaMailSender.setPort(587);
-        javaMailSender.setUsername("${spring.mail.username}");
-        javaMailSender.setPassword("${spring.mail.password}");
+        javaMailSender.setHost(host);
+        javaMailSender.setPort(port);
+        javaMailSender.setUsername(username);
+        javaMailSender.setPassword(password);
 
         Properties properties = javaMailSender.getJavaMailProperties();
         properties.put("mail.transport.protocol", "smtp");

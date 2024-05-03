@@ -2,6 +2,7 @@ package com.example.kitchendesign.entity;
 
 import com.example.kitchendesign.entity.project.Draft;
 import com.example.kitchendesign.entity.project.Project;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -57,6 +58,7 @@ public class User {
 
 
     @Column(name = "registration_date", nullable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime regDate;
 
 
