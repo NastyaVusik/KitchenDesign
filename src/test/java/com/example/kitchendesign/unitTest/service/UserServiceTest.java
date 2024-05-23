@@ -100,7 +100,6 @@ public class UserServiceTest {
         NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.findById(userId));
 
         //        Then
-//        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findById(userId), "404 User not found");
         Assertions.assertEquals("404 User not found", notFoundException.getMessage());
         Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
     }
