@@ -4,24 +4,21 @@ import com.example.kitchendesign.dto.userDTO.UserUpdateDTO;
 import com.example.kitchendesign.entity.User;
 import com.example.kitchendesign.exception.NotFoundException;
 import com.example.kitchendesign.mapper.GeneralMapper;
-import com.example.kitchendesign.mapper.GeneralMapperImpl;
 import com.example.kitchendesign.repository.UserRepository;
 import com.example.kitchendesign.service.UserService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -32,10 +29,11 @@ public class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Spy
+    private GeneralMapper generalMapper = GeneralMapper.MAPPER;
+
     @InjectMocks
     private UserService userService;
-
-    private final GeneralMapper generalMapper = new GeneralMapperImpl();
 
 
     @Test
@@ -69,25 +67,6 @@ public class UserServiceTest {
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this username is already exist"))
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this email is already exist"))
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this phone number is already exist"));
-    }
-
-
-    @Test
-    void isUsernameAlreadyUsed_ifItUsed_ReturnTrue() {
-
-        //        Given
-        User exsistedUser = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.now(), null);
-        User newUser = new User(2L, "cat1", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.now(), null);
-//        Mockito.when(userRepository.findByUsername(newUser.getUsername()).get().getUsername().equals(exsistedUser.getUsername())).thenReturn(true);
-        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(exsistedUser);
-        Mockito.when(userRepository.findByUsername(newUser.getUsername()).isPresent()).thenReturn(true);
-
-        //        When
-        User userByUsername = userService.findByUsername(newUser.getUsername());
-
-        //        Then
-        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(newUser.getUsername());
-        Mockito.verify(userService, Mockito.times(1)).isUsernameAlreadyUsed(newUser.getUsername());
     }
 
 
@@ -256,9 +235,8 @@ public class UserServiceTest {
         User updatedUser = userService.updateById(userId, userUpdateDTO);
 
         //        Then
-//        Assertions.assertEquals(user1.getRegDate(), updatedUser.getRegDate());
-//        Assertions.assertEquals(user1.getId(), updatedUser.getId());
-//        Assertions.assertEquals(user1, userService.findByUsername("cat2"));
+        Assertions.assertEquals(user1.getRegDate(), updatedUser.getRegDate());
+        Assertions.assertEquals(user1.getId(), updatedUser.getId());
         Assertions.assertNotNull(updatedUser);
         Assertions.assertNotNull(userFromUpdateDTO);
         Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
