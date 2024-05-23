@@ -134,6 +134,8 @@ public class UserService {
         user.setEmail(generalMapper.userUpdateDTOToUser(userUpdateDTO).getEmail());
         user.setPhoneNumber(generalMapper.userUpdateDTOToUser(userUpdateDTO).getPhoneNumber());
 
+        userRepository.save(user);
+
         return user;
     }
 

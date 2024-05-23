@@ -1,34 +1,36 @@
 package com.example.kitchendesign.unitTest.service;
 
+import com.example.kitchendesign.dto.userDTO.UserUpdateDTO;
 import com.example.kitchendesign.entity.User;
 import com.example.kitchendesign.exception.NotFoundException;
 import com.example.kitchendesign.mapper.GeneralMapper;
 import com.example.kitchendesign.repository.UserRepository;
 import com.example.kitchendesign.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatusCode;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-@DataJpaTest
 public class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
 
-    @Mock
-    private GeneralMapper generalMapper;
+    @Spy
+    private GeneralMapper generalMapper = GeneralMapper.MAPPER;
 
     @InjectMocks
     private UserService userService;
@@ -37,13 +39,22 @@ public class UserServiceTest {
     @Test
     void save_withValidData_saveToDatabase() {
 
-        User savedUser = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User expectedeUser = userService.findById(savedUser.getId());
+        //        Given
+        User newUser = new User(null, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, null, null);
+        //        newUser after saving in data base
+        User savedUser = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.now(), null);
 
-        Assertions.assertNotNull(savedUser, "User was saved successfully!");
-        Assertions.assertEquals(expectedeUser.getUsername(), savedUser.getUsername());
-        Assertions.assertEquals(savedUser, userRepository.findById(1L).get());
-        Mockito.when(userService.findById(1L)).thenReturn(savedUser);
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(savedUser);
+        Mockito.when(userRepository.findById(1L)).thenReturn(Optional.of(savedUser));
+
+        //        When
+        User savedUser1 = userService.save(newUser);
+
+        //        Then
+        Assertions.assertNotNull(savedUser1, "User was saved successfully!");
+        Assertions.assertEquals(savedUser, savedUser1);
+        Assertions.assertEquals(savedUser1, userRepository.findById(1L).get());
+        Mockito.verify(userRepository, Mockito.times(1)).save(newUser);
     }
 
 
@@ -60,120 +71,235 @@ public class UserServiceTest {
 
 
     @Test
-    void isUsernameAlreadyUsed_ifItUsed_ReturnTrue() {
+    void findById_ifExisted_returnUser() {
 
-        User exsistedUser = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User newUser = userService.save(new User(2L, "cat1", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        Long userId = 1L;
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
 
-        Assertions.assertEquals(userService.findByUsername(exsistedUser.getUsername()), userService.findByUsername(newUser.getUsername()));
-        Assertions.assertFalse(userService.isUsernameAlreadyUsed(exsistedUser.getUsername()));
-        Assertions.assertTrue(userService.isUsernameAlreadyUsed(newUser.getUsername()));
+        //        When
+        User userFindById = userService.findById(userId);
+
+        //        Then
+        Assertions.assertEquals(userFindById, user1);
+        Assertions.assertNotNull(userFindById, "This user is exist!");
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
     }
 
 
     @Test
-    void findById_ifExisted_returnUserElseException() {
+    void findById_ifNotExisted_returnException() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user2 = userService.save(new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        Long userId = 2L;
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
 
-        Assertions.assertEquals(user1, userService.findById(1L));
-        Assertions.assertNotNull(userService.findById(1L), "This user is exist!");
-        Assertions.assertNotSame(user2, userService.findById(1L));
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findById(3L), "User not found");
-        Mockito.when(userService.findById(1L).equals(user1)).thenReturn(true);
-        Mockito.verify(1);
+        //        When
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.findById(userId));
+
+        //        Then
+        Assertions.assertEquals("404 User not found", notFoundException.getMessage());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
     }
 
 
     @Test
-    void findByUsername_ifExisted_returnUserElseException() {
+    void findByUsername_ifExisted_returnUser() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user2 = userService.save(new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        String username = "cat1";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByUsername(username)).thenReturn(Optional.of(user1));
 
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findByUsername("cat3"), "User not found");
-        Mockito.when(userService.findByUsername("cat1").equals(user1)).thenReturn(true);
-        Mockito.verify(1);
+        //        When
+        User userByUsername = userService.findByUsername(username);
+
+        //        Then
+        Assertions.assertEquals(userByUsername, user1);
+        Assertions.assertNotNull(userByUsername, "This user is exist!");
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(username);
     }
 
 
     @Test
-    void findByEmail_ifExisted_returnUserElseException() {
+    void findByUsername_ifNotExisted_returnException() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user2 = userService.save(new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        String username = "cat2";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findByEmail("cat3@mail.ru"), "User not found");
-        Mockito.when(userService.findByEmail("cat1@mail.ru").equals(user1)).thenReturn(true);
-        Mockito.verify(1);
+        //        When
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.findByUsername(username));
+
+        //        Then
+        Assertions.assertEquals("404 User not found", notFoundException.getMessage());
+        Mockito.verify(userRepository, Mockito.times(1)).findByUsername(username);
     }
 
 
     @Test
-    void findByPhoneNumber_ifExisted_returnUserElseException() {
+    void findByEmail_ifExisted_returnUser() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user2 = userService.save(new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        String email = "cat1@mail.ru";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByEmail(email)).thenReturn(Optional.of(user1));
 
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findByPhoneNumber("+375297077319"), "User not found");
-        Mockito.when(userService.findByPhoneNumber("+375297077317").equals(user1)).thenReturn(true);
-        Mockito.verify(1);
+        //        When
+        User userByEmail = userService.findByEmail(email);
+
+        //        Then
+        Assertions.assertEquals(userByEmail, user1);
+        Assertions.assertNotNull(userByEmail, "This user is exist!");
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(email);
     }
 
 
     @Test
-    void updateById_ifFieldsChanged_returnSameUserElseException() {
+    void findByEmail_ifNotExisted_returnException() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        String email = "cat2@mail.ru";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-        user1.setUsername("cat2");
-        user1.setEmail("cat2@mail.ru");
-        user1.setEmail("123QWErty?");
-        user1.setPhoneNumber("+375297077318");
+        //        When
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.findByEmail(email));
 
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.findById(2L), "User not found");
-        Assertions.assertTrue(userService.findByUsername("cat2").getRegDate().isEqual(user1.getRegDate()));
-        Mockito.when(userService.findByUsername("cat2").equals(user1)).thenReturn(true);
-        Mockito.when(userService.findByEmail("cat2@mail.ru").equals(user1)).thenReturn(true);
-        Mockito.when(userService.findByPhoneNumber("+375297077318").equals(user1)).thenReturn(true);
-        Mockito.when(userService.findByUsername("cat2").equals(userService.findById(1L))).thenReturn(true);
-        Mockito.when(userService.findByEmail("cat2@mail.ru").equals(userService.findById(1L))).thenReturn(true);
-        Mockito.when(userService.findByUsername("+375297077318").equals(userService.findById(1L))).thenReturn(true);
-        Mockito.verify(1);
+        //        Then
+        Assertions.assertEquals("404 User not found", notFoundException.getMessage());
+        Mockito.verify(userRepository, Mockito.times(1)).findByEmail(email);
     }
 
 
     @Test
-    void findAll_ifExist_getList(){
+    void findByPhoneNumber_ifExisted_returnUser() {
 
-        User user1 = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user2 = userService.save(new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        User user3 = userService.save(new User(3L, "cat3", "123QWErty!", "cat3@mail.ru", "+375297077319", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
+        //        Given
+        String phoneNumber = "+375297077317";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.of(user1));
 
+        //        When
+        User userByPhoneNumber = userService.findByPhoneNumber(phoneNumber);
+
+        //        Then
+        Assertions.assertEquals(userByPhoneNumber, user1);
+        Assertions.assertNotNull(userByPhoneNumber);
+        Mockito.verify(userRepository, Mockito.times(1)).findByPhoneNumber(phoneNumber);
+    }
+
+
+    @Test
+    void findByPhoneNumber_ifNotExisted_returnException() {
+
+        //        Given
+        String phoneNumber = "+375297077318";
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findByPhoneNumber(phoneNumber)).thenReturn(Optional.empty());
+
+        //        When
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.findByPhoneNumber(phoneNumber));
+
+        //        Then
+        Assertions.assertEquals("404 User not found", notFoundException.getMessage());
+        Mockito.verify(userRepository, Mockito.times(1)).findByPhoneNumber(phoneNumber);
+    }
+
+    @Test
+    void updateById_ifFieldsChanged_returnSameUserWithSameId() {
+
+        //        Given
+        Long userId = 1L;
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+
+        //        Updated parameters
+        UserUpdateDTO userUpdateDTO = UserUpdateDTO.builder()
+                .username("cat2")
+                .email("cat2@mail.ru")
+                .password("123QWErty?")
+                .phoneNumber("+375297077318")
+                .build();
+
+        BeanUtils.copyProperties(userUpdateDTO, user1);
+
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(user1));
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user1);
+
+        //        When
+        User userFromUpdateDTO = generalMapper.userUpdateDTOToUser(userUpdateDTO);
+        User updatedUser = userService.updateById(userId, userUpdateDTO);
+
+        //        Then
+        Assertions.assertEquals(user1.getRegDate(), updatedUser.getRegDate());
+        Assertions.assertEquals(user1.getId(), updatedUser.getId());
+        Assertions.assertNotNull(updatedUser);
+        Assertions.assertNotNull(userFromUpdateDTO);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+        Mockito.verify(userRepository, Mockito.times(1)).save(updatedUser);
+    }
+
+
+    @Test
+    void findAll_ifExist_getList() {
+
+        //        Given
+        User user1 = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        User user2 = new User(2L, "cat2", "123QWErty!", "cat2@mail.ru", "+375297077318", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        User user3 = new User(3L, "cat3", "123QWErty!", "cat3@mail.ru", "+375297077319", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findAll()).thenReturn(Arrays.asList(user1, user2, user3));
+
+        //        When
         List<User> userList = userService.findAll();
 
+        //        Then
         Assertions.assertEquals(3, userList.size());
         Assertions.assertEquals("cat1", userList.get(0).getUsername());
-        Mockito.verify(userService, Mockito.times(userList.size())).findAll();           //??????????????????????????????
+        Mockito.verify(userRepository, Mockito.times(1)).findAll();
     }
 
 
     @Test
-    void removeById_ifExist_removeUserAndReturnUserElseException() {
+    void removeById_ifExist_removeUserAndReturnUser() {
 
-//        Given
-        User userBeforeDeleting = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
-        Optional<User> userAfterDeleting = Optional.ofNullable(userService.findById(userBeforeDeleting.getId()));
+        //        Given
+        Long userId = 1L;
+        User userBeforeDeleting = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.of(userBeforeDeleting));
 
-//        When
-        userService.removeById(userBeforeDeleting.getId());
+        //        When
+        User userAfterDeleting = userService.removeById(userBeforeDeleting.getId());
 
-//        Then
-        Assertions.assertEquals(1L, userService.removeById(userBeforeDeleting.getId()).getId());
-        Assertions.assertTrue(userAfterDeleting.isEmpty());
-        Assertions.assertThrows(NotFoundException.class, (Executable) userService.removeById(2L), "User not found");
-        Mockito.when(userService.removeById(userBeforeDeleting.getId())).thenReturn(userBeforeDeleting);
-        Mockito.verify(1);
+        //        Then
+        Assertions.assertEquals(1L, userAfterDeleting.getId());
+        Assertions.assertEquals(userAfterDeleting, userBeforeDeleting);
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+        Mockito.verify(userRepository, Mockito.times(1)).deleteById(userId);
+    }
+
+
+    @Test
+    void removeById_ifNotExist_returnException() {
+
+        //        Given
+        Long userId = 2L;
+        User userBeforeDeleting = new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
+        Mockito.when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        //        When
+        NotFoundException notFoundException = Assertions.assertThrows(NotFoundException.class, () -> userService.removeById(userId));
+
+        //        Then
+        Assertions.assertEquals("404 User not found", notFoundException.getMessage());
+        Mockito.verify(userRepository, Mockito.times(1)).findById(userId);
+    }
+
+
+    @AfterEach
+    void tearDown() {
+        Mockito.reset(userRepository);
     }
 }
