@@ -58,7 +58,8 @@ public class User {
 
 
     @Column(name = "registration_date", nullable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+//    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime regDate;
 
 

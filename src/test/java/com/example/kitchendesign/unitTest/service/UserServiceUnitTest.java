@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+public class UserServiceUnitTest {
 
     @Mock
     private UserRepository userRepository;
@@ -60,10 +60,15 @@ public class UserServiceTest {
 
     @Test
     void save_withValidDataIfUserIsPresent_returnException() {
+
+        //        Given
         User existedUser = userService.save(new User(1L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null));
         User user2ForSaving = new User(2L, "cat1", "123QWErty!", "cat1@mail.ru", "+375297077317", null, LocalDateTime.parse("2019-12-31T23:59:59.0000"), null);
 
+        //        When
         Mockito.when(userService.save(user2ForSaving))
+
+        //        Then
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this username is already exist"))
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this email is already exist"))
                 .thenThrow(new NotFoundException(HttpStatusCode.valueOf(409), "Account with this phone number is already exist"));
