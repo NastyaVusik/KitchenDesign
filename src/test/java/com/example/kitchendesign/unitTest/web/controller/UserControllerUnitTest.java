@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -39,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(MockitoExtension.class)
 @WebMvcTest(controllers = UserController.class)
-public class UserControllerTest {
+public class UserControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -99,18 +98,6 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.id").isNumber());
 
         Mockito.verify(userService, Mockito.times(1)).save(Mockito.any(User.class));
-    }
-
-
-    @Test
-    void registration_ifUserDataNotValid_returnHttpClientErrorExceptionWithStatus409(){
-
-        //        Given
-
-        //        When
-
-
-        //        Then
     }
 
 
@@ -232,9 +219,7 @@ public class UserControllerTest {
 
         //        Given
         Long userId = 4L;
-        Optional<User> userById = Optional.empty();
 
-        Mockito.when(userService.findById(userId)).thenReturn(userById);        //??????????????
         Mockito.when(userService.findById(userId)).thenThrow(new NotFoundException(HttpStatusCode.valueOf(404), "User not found"));
 
 
